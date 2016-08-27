@@ -45,12 +45,36 @@ def index(request):
         if(soup.find("div", id="scope_book_description")):
             wsBookDescription = soup.find("div", id="scope_book_description").text.strip()
 
+    # write synopsis direct to DB
+    import psycopg2
+
+    # Connect to an existing database
+    # FIXME source from heroku props
+    conn = psycopg2.connect("dbname='" + os.environ['DB_NAME'] + "' user='" + os.environ['DB_USER'] + "' host='" + os.environ['DB_HOST'] + "' password='" + os.environ['DB_PASSWORD'] + "' sslmode='require'")
+    
+    # Open a cursor to perform database operations
+    cur = conn.cursor()
+    
+    # Pass data to fill a query placeholders and let Psycopg perform
+    # the correct conversion (no more SQL injections!)
+    cur.execute("INSERT INTO public.\"SummaryText\" (isbn, oauthid, datetime, text) VALUES (%s, %s, %s, %s) RETURNING id",(asin, '99991', 'now()', decodedBookDescription))
+    insertIdAmaznon = cur.fetchone()[0]
+    cur.execute("INSERT INTO public.\"SummaryText\" (isbn, oauthid, datetime, text) VALUES (%s, %s, %s, %s) RETURNING id",(asin, '99992', 'now()', wsBookDescription))
+    insertIdWaterstones = cur.fetchone()[0]
+    
+    # Make the changes to the database persistent
+    conn.commit()
+    
+    # Close communication with the database
+    cur.close()
+    conn.close()
+
     jsonData = {
         "URL":url,
         "SynopsisAmazon":decodedBookDescription,
         "SynopsisWaterstones":wsBookDescription,
-        "SynopsisIdAmazon":'1',
-        "SynopsisIdWaterstones":'2'
+        "SynopsisIdAmazon":insertIdAmaznon,
+        "SynopsisIdWaterstones":insertIdWaterstones
 
     }
 
