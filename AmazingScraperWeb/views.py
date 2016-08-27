@@ -49,7 +49,7 @@ def index(request):
     import psycopg2
 
     # Connect to an existing database
-    # FIXME source from heroku props
+    import os
     conn = psycopg2.connect("dbname='" + os.environ['DB_NAME'] + "' user='" + os.environ['DB_USER'] + "' host='" + os.environ['DB_HOST'] + "' password='" + os.environ['DB_PASSWORD'] + "' sslmode='require'")
     
     # Open a cursor to perform database operations
