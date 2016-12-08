@@ -58,9 +58,13 @@ def index(request):
     # Pass data to fill a query placeholders and let Psycopg perform
     # the correct conversion (no more SQL injections!)
     cur.execute("INSERT INTO public.\"SummaryText\" (isbn, oauthid, datetime, text) VALUES (%s, %s, %s, %s) RETURNING id",(asin, '99991', 'now()', decodedBookDescription))
-    insertIdAmaznon = cur.fetchone()[0]
-    cur.execute("INSERT INTO public.\"SummaryText\" (isbn, oauthid, datetime, text) VALUES (%s, %s, %s, %s) RETURNING id",(asin, '99992', 'now()', wsBookDescription))
-    insertIdWaterstones = cur.fetchone()[0]
+    insertIdAmazon = cur.fetchone()[0]
+    #check it's not empty, we know it can be
+    if(wsBookDescription):
+        cur.execute("INSERT INTO public.\"SummaryText\" (isbn, oauthid, datetime, text) VALUES (%s, %s, %s, %s) RETURNING id",(asin, '99992', 'now()', wsBookDescription))
+        insertIdWaterstones = cur.fetchone()[0]
+    else:
+        insertIdWaterstones = None
     
     # Make the changes to the database persistent
     conn.commit()
@@ -69,14 +73,15 @@ def index(request):
     cur.close()
     conn.close()
 
+    # FIXME not an ordered collection, but it really doesn't matter
     jsonData = {
         "URL":url,
-        "SynopsisAmazon":decodedBookDescription,
-        "SynopsisWaterstones":wsBookDescription,
-        "SynopsisIdAmazon":insertIdAmaznon,
-        "SynopsisIdWaterstones":insertIdWaterstones
-
+        "SynopsisIdAmazon":insertIdAmazon,
+        "SynopsisAmazon":decodedBookDescription
     }
+    if(insertIdWaterstones and wsBookDescription):
+        jsonData['SynopsisIdWaterstones'] = insertIdWaterstones
+        jsonData['SynopsisWaterstones'] = wsBookDescription
 
     response = HttpResponse(json.dumps(jsonData), content_type="application/json")
     response['Access-Control-Allow-Origin'] = '*'

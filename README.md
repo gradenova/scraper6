@@ -1,43 +1,22 @@
-# Heroku Django Starter Template
+Amazon & Waterstones Synopsis Scraper
 
-An utterly fantastic project starter template for Django 1.9.
+Based on the Heroku Django Starter Template
+https://github.com/heroku/heroku-django-template
 
-## Features
+Deployed to Heroku here;
+https://dashboard.heroku.com/apps/wellreadscraper
 
-- Production-ready configuration for Static Files, Database Settings, Gunicorn, etc.
-- Enhancements to Django's static file serving functionality via WhiteNoise
+It provides a single service, at the root of the project, that is called at runtime by the WellRead website;
+https://wellreadscraper.herokuapp.com/
 
-## How to Use
+This service takes the following request parameters;
+url: The URL for the book at Amazon, e.g. http://www.amazon.co.uk/DanTDM-Trayaurus-Enchanted-Crystal/dp/1409168395
+asin: The Amazon book ID, e.g. 1409168395. We pass this in seperately in case it can't be extracted from the Amazon URL - it's the primary ID of a book on WellRead.
+isbn: The book's 13 digit ISBN code, e.g. 9781409168393. This is used to dynamically generate the Waterstones URL.
 
-To use this project, follow these steps:
+Running locally;
 
-1. Create your working environment.
-2. Install Django (`$ pip install django`)
-3. Create a new project using this template
+remember to source your local environment variables
+source init.sh
 
-## Creating Your Project
-
-Using this template to create a new Django app is easy::
-
-    $ django-admin.py startproject --template=https://github.com/heroku/heroku-django-template/archive/master.zip --name=Procfile helloworld
-
-You can replace ``helloworld`` with your desired project name.
-
-## Deployment to Heroku
-
-    $ git init
-    $ git add -A
-    $ git commit -m "Initial commit"
-
-    $ heroku create
-    $ git push heroku master
-
-    $ heroku run python manage.py migrate
-
-See also, a [ready-made application](https://github.com/heroku/python-getting-started), ready to deploy.
-
-## Further Reading
-
-- [Gunicorn](https://warehouse.python.org/project/gunicorn/)
-- [WhiteNoise](https://warehouse.python.org/project/whitenoise/)
-- [dj-database-url](https://warehouse.python.org/project/dj-database-url/)
+python manage.py runserver
