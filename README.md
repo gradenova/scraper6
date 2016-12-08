@@ -13,6 +13,7 @@ This service takes the following request parameters;
 url: The URL for the book at Amazon, e.g. http://www.amazon.co.uk/DanTDM-Trayaurus-Enchanted-Crystal/dp/1409168395
 asin: The Amazon book ID, e.g. 1409168395. We pass this in seperately in case it can't be extracted from the Amazon URL - it's the primary ID of a book on WellRead.
 isbn: The book's 13 digit ISBN code, e.g. 9781409168393. This is used to dynamically generate the Waterstones URL.
+save(optional): Set to false if you don't want to auto persist direct to the database.
 
 Running locally;
 
