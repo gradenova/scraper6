@@ -87,7 +87,7 @@ def index(request):
         "SynopsisIdAmazon":insertIdAmazon,
         "SynopsisAmazon":decodedBookDescription
     }
-    if(insertIdWaterstones and wsBookDescription):
+    if(wsBookDescription):
         jsonData['SynopsisIdWaterstones'] = insertIdWaterstones
         jsonData['SynopsisWaterstones'] = wsBookDescription
 
