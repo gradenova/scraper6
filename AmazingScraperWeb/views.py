@@ -33,6 +33,8 @@ def index(request):
     bookDescription = m.group(1)
 
     decodedBookDescription = urllib2.unquote(bookDescription).decode("utf-8", "strict")
+    if(len(decodedBookDescription) < 10):
+        decodedBookDescription = None;
 
     #Waterstones
     url = "https://www.waterstones.com/book/" + isbn
@@ -65,8 +67,11 @@ def index(request):
 
         # Pass data to fill a query placeholders and let Psycopg perform
         # the correct conversion (no more SQL injections!)
-        cur.execute("INSERT INTO public.\"SummaryText\" (isbn, oauthid, datetime, text) VALUES (%s, %s, %s, %s) RETURNING id",(asin, '99991', 'now()', decodedBookDescription))
-        insertIdAmazon = cur.fetchone()[0]
+        if(decodedBookDescription):
+            cur.execute("INSERT INTO public.\"SummaryText\" (isbn, oauthid, datetime, text) VALUES (%s, %s, %s, %s) RETURNING id",(asin, '99991', 'now()', decodedBookDescription))
+            insertIdAmazon = cur.fetchone()[0]
+        else:
+            insertIdAmazon = None
         #check it's not empty, we know it can be
         if(wsBookDescription):
             cur.execute("INSERT INTO public.\"SummaryText\" (isbn, oauthid, datetime, text) VALUES (%s, %s, %s, %s) RETURNING id",(asin, '99992', 'now()', wsBookDescription))
@@ -83,10 +88,11 @@ def index(request):
 
     # FIXME not an ordered collection, but it really doesn't matter
     jsonData = {
-        "URL":url,
-        "SynopsisIdAmazon":insertIdAmazon,
-        "SynopsisAmazon":decodedBookDescription
+        "URL":url
     }
+    if(decodedBookDescription):
+        jsonData['SynopsisIdAmazon'] = insertIdAmazon
+        jsonData['SynopsisAmazon'] = decodedBookDescription
     if(wsBookDescription):
         jsonData['SynopsisIdWaterstones'] = insertIdWaterstones
         jsonData['SynopsisWaterstones'] = wsBookDescription
