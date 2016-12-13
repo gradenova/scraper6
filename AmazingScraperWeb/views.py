@@ -34,12 +34,12 @@ def index(request):
 
     decodedBookDescription = urllib2.unquote(bookDescription).decode("utf-8", "strict")
     if(len(decodedBookDescription) < 10):
-        decodedBookDescription = None;
+        decodedBookDescription = None
 
     #Waterstones
     url = "https://www.waterstones.com/book/" + isbn
     page = requests.get(url, headers=headers)
-    wsBookDescription = 'null'
+    wsBookDescription = None
     if(page.status_code == 404):
         print("404! Skipping ISBN : " + isbn)
     else:
