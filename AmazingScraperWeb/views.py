@@ -10,9 +10,16 @@ def index(request):
     import requests
     import re
     import urllib2
+    import urlparse
 
     #url = "http://www.amazon.co.uk/Nineteen-Eighty-Four-Penguin-Modern-Classics/dp/014118776X"
     url = request.GET.get('url', '')
+
+    parsedObject = urlparse.urlparse(url)
+    slashparts = parsedObject.path.split('/')
+    bookFriendlyUrl = slashparts[1]
+    #print("bookFriendlyUrl : " + bookFriendlyUrl)
+
     asin = request.GET.get('asin', '')
     isbn = request.GET.get('isbn', '')
     # save to DB? optional parameter
@@ -64,6 +71,9 @@ def index(request):
 
         # Open a cursor to perform database operations
         cur = conn.cursor()
+
+        # write the friendly URL to our mapping table!
+        cur.execute("INSERT INTO public.\"Books\" (isbn, friendlyurl) VALUES (%s, %s)",(asin, bookFriendlyUrl))
 
         # Pass data to fill a query placeholders and let Psycopg perform
         # the correct conversion (no more SQL injections!)
